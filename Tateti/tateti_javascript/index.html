@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tateti</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="tateti.js"></script>
+    <script>
+        function showGameZone(name1, name2){
+            boardGame = document.getElementById("gameZone");
+            if (boardGame.style.display == 'none'){
+                boardGame.style.display = 'block';
+            }
+
+            document.getElementById("name_p1").innerText = player1;
+            document.getElementById("name_p2").innerText = player2;
+            
+        }
+
+        function loadBoard(){        
+            player1 = document.getElementById("player1").value;
+            player2 = document.getElementById("player2").value;
+            document.getElementById("dataPlayers").style.display='none';
+            showGameZone(player1,player2);
+            initCells();
+            //Calcular quien juega y con que simbolo
+        }
+        
+        function initCells(){
+            //comprobar si la celda ya tiene valores, de ser asi no dejar clickear
+            //function(){updateCell(numCell)}
+            document.getElementById("cell11").addEventListener('click', updateCell);
+            document.getElementById("cell12").addEventListener('click', updateCell);
+            document.getElementById("cell13").addEventListener('click', updateCell);
+            document.getElementById("cell21").addEventListener('click', updateCell);
+            document.getElementById("cell22").addEventListener('click', updateCell);
+            document.getElementById("cell23").addEventListener('click', updateCell);
+            document.getElementById("cell31").addEventListener('click', updateCell);
+            document.getElementById("cell32").addEventListener('click', updateCell);
+            document.getElementById("cell33").addEventListener('click', updateCell);
+        }
+
+        function draw(){
+
+        }
+    </script>
+</head>
+<body>
+    <div id = "dataPlayers">
+        <label for="player1">Jugador 1</label>
+        <input type="text" name="player1" value="Ingresa tu nombre" id="player1"><br><br>
+        <label for="player2" >Jugador 2</label>
+        <input type="text" name="player2" value="Ingresa tu nombre" id="player2"><br><br>
+        <button type="button" onclick="loadBoard()"> Jugar </button> 
+    </div>
+
+    <div id="gameZone" style="display: none;">
+        <table id="playerZone">
+            <tr>
+                <td>Jugador 1</td>
+                <td>Jugador 2</td>
+            </tr>
+            <tr>
+                <td id="name_p1"></td>
+                <td id="name_p2"></td>
+            </tr>
+        </table>
+
+
+        <div id="board"> 
+            <table id="boardTable">
+                <tr>
+                    <td id="cell11"></td>
+                    <td id="cell12"></td>
+                    <td id="cell13"></td>
+                </tr>
+                <tr>
+                    <td id="cell21"></td>
+                    <td id="cell22"></td>
+                    <td id="cell23"></td>
+                </tr>
+                <tr>
+                    <td id="cell31"></td>
+                    <td id="cell32"></td>
+                    <td id="cell33"></td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <label>Juega <span id="player"></span><span id="symbol"></span> </label>
+        </div>
+    </div>
+
+    
+</body>
+</html>
