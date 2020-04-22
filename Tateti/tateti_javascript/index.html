@@ -5,62 +5,112 @@
     <link rel="stylesheet" href="styles.css">
     <script src="tateti.js"></script>
     <script>
-        function showGameZone(name1, name2){
+        function showGameZone(player1, player2){
             boardGame = document.getElementById("gameZone");
             if (boardGame.style.display == 'none'){
                 boardGame.style.display = 'block';
             }
 
-            document.getElementById("name_p1").innerText = player1;
-            document.getElementById("name_p2").innerText = player2;
-            
+            document.getElementById("name_p1").innerText = player1.name;
+            document.getElementById("name_p2").innerText = player2.name;
+            document.getElementById("symbol1").innerText = player1.symbol;
+            document.getElementById("symbol2").innerText = player2.symbol;
+
+            play();            
         }
 
         function loadBoard(){        
-            player1 = document.getElementById("player1").value;
-            player2 = document.getElementById("player2").value;
+            players = initPlayers(document.getElementById("player1").value,document.getElementById("player2").value);
+
+            player1 = players[0]
+            player2 = players[1]
+            
             document.getElementById("dataPlayers").style.display='none';
             showGameZone(player1,player2);
-            initCells();
-            //Calcular quien juega y con que simbolo
+            initCells();            
         }
         
         function initCells(){
             //comprobar si la celda ya tiene valores, de ser asi no dejar clickear
             //function(){updateCell(numCell)}
-            document.getElementById("cell11").addEventListener('click', updateCell);
-            document.getElementById("cell12").addEventListener('click', updateCell);
-            document.getElementById("cell13").addEventListener('click', updateCell);
-            document.getElementById("cell21").addEventListener('click', updateCell);
-            document.getElementById("cell22").addEventListener('click', updateCell);
-            document.getElementById("cell23").addEventListener('click', updateCell);
-            document.getElementById("cell31").addEventListener('click', updateCell);
-            document.getElementById("cell32").addEventListener('click', updateCell);
-            document.getElementById("cell33").addEventListener('click', updateCell);
+            cell11 = document.getElementById("cell11")
+            cell12 = document.getElementById("cell12")
+            cell13 = document.getElementById("cell13")
+            cell21 = document.getElementById("cell21")
+            cell22 = document.getElementById("cell22")
+            cell23 = document.getElementById("cell23")
+            cell31 = document.getElementById("cell31")
+            cell32 = document.getElementById("cell32")
+            cell33 = document.getElementById("cell33")
+
+            cell11.addEventListener('click', function(){draw(cell11)});
+            cell12.addEventListener('click', function(){draw(cell12)});
+            cell13.addEventListener('click', function(){draw(cell13)});
+            cell21.addEventListener('click', function(){draw(cell21)});
+            cell22.addEventListener('click', function(){draw(cell22)});
+            cell23.addEventListener('click', function(){draw(cell23)});
+            cell31.addEventListener('click', function(){draw(cell31)});
+            cell32.addEventListener('click', function(){draw(cell32)});
+            cell33.addEventListener('click', function(){draw(cell33)});
         }
 
-        function draw(){
-
+        function play(){
+            currentPlayer = obtainWhoIsPlaying();
+            document.getElementById("current_player").innerText = currentPlayer.name;
+            document.getElementById("symbol_player").innerText = currentPlayer.symbol;
         }
-    </script>
+        
+        function draw(cellSelected){
+            let elementsTd = document.getElementById("boardTable").getElementsByTagName("td");
+            for (let index = 0; index < elementsTd.length; index++) {               
+                if(elementsTd[index].id === cellSelected.id){
+                    if(elementsTd[index].innerText==null||elementsTd[index].innerText==''){
+                        elementsTd[index].innerText = obtainWhoIsPlaying().symbol;
+                        //obtainWinner(elementsTd);
+                        updatePlayersStatus();
+                        play();
+                    }
+                }
+            }
+
+            updateCell(cellSelected,elementsTd);
+        }
+
+        function updateCell(cellSelected,elementsTd){
+            let cells = new Array(3);
+            let j = 0;           
+            let countElements = elementsTd.length/cells.length;
+         
+            for (let i = 0, j= -1; i < elementsTd.length; i++) {
+                if(i%countElements===0){
+                    j++;
+                    cells[j] = [];
+                }
+                
+                cells[j].push(elementsTd[i].innerText);
+            }
+            
+            obtainWinner(cells)
+        }
+   </script>
 </head>
 <body>
     <div id = "dataPlayers">
         <label for="player1">Jugador 1</label>
-        <input type="text" name="player1" value="Ingresa tu nombre" id="player1"><br><br>
+        <input type="text" name="player1" value="Jugador uno" id="player1"><br><br>
         <label for="player2" >Jugador 2</label>
-        <input type="text" name="player2" value="Ingresa tu nombre" id="player2"><br><br>
+        <input type="text" name="player2" value="Jugador dos" id="player2"><br><br>
         <button type="button" onclick="loadBoard()"> Jugar </button> 
     </div>
 
     <div id="gameZone" style="display: none;">
         <table id="playerZone">
             <tr>
-                <td>Jugador 1</td>
-                <td>Jugador 2</td>
+                <td id="symbol1"></td>
+                <td id="name_p1"></td>
             </tr>
             <tr>
-                <td id="name_p1"></td>
+                <td id="symbol2"></td>
                 <td id="name_p2"></td>
             </tr>
         </table>
@@ -86,7 +136,7 @@
             </table>
         </div>
         <div>
-            <label>Juega <span id="player"></span><span id="symbol"></span> </label>
+            <label>Juega <span id="current_player"></span> <span id="symbol_player"></span> </label>
         </div>
     </div>
 
