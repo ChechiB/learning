@@ -1,13 +1,20 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Tateti</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Bahianita&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barrio&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Neucha&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <script src="tateti.js"></script>
     <script>
-        function showGameZone(player1, player2){
+        function showGameZone(player1, player2) {
             boardGame = document.getElementById("gameZone");
-            if (boardGame.style.display == 'none'){
+            if (boardGame.style.display == 'none') {
                 boardGame.style.display = 'block';
             }
 
@@ -16,23 +23,38 @@
             document.getElementById("symbol1").innerText = player1.symbol;
             document.getElementById("symbol2").innerText = player2.symbol;
 
-            play();            
+            play();
         }
 
-        function loadBoard(){        
-            players = initPlayers(document.getElementById("player1").value,document.getElementById("player2").value);
-
-            player1 = players[0]
-            player2 = players[1]
-            
-            document.getElementById("dataPlayers").style.display='none';
-            showGameZone(player1,player2);
-            initCells();            
+        function validate(player1, player2) {
+            if (player1.name === "" || player2 === "") {
+                return true;
+            } else {
+                return false;
+            }
         }
-        
-        function initCells(){
-            //comprobar si la celda ya tiene valores, de ser asi no dejar clickear
-            //function(){updateCell(numCell)}
+
+        function loadBoard() {
+            player1 = document.getElementById('player1').value
+            player2 = document.getElementById('player2').value
+            if (!validate(player1, player2)) {
+                document.getElementById("dataPlayers").style.display = 'none';
+                document.getElementById("alert_empty_name").style.display = 'none';
+                initCells();
+                initGame(player1, player2)
+
+            } else {
+                document.getElementById("alert_empty_name").style.display = 'block';
+            }
+        }
+
+        function initGame(player1, player2) {
+            players = initPlayers(player1, player2);
+            showGameZone(players[0], players[1]);
+
+        }
+
+        function initCells() {
             cell11 = document.getElementById("cell11")
             cell12 = document.getElementById("cell12")
             cell13 = document.getElementById("cell13")
@@ -43,103 +65,179 @@
             cell32 = document.getElementById("cell32")
             cell33 = document.getElementById("cell33")
 
-            cell11.addEventListener('click', function(){draw(cell11)});
-            cell12.addEventListener('click', function(){draw(cell12)});
-            cell13.addEventListener('click', function(){draw(cell13)});
-            cell21.addEventListener('click', function(){draw(cell21)});
-            cell22.addEventListener('click', function(){draw(cell22)});
-            cell23.addEventListener('click', function(){draw(cell23)});
-            cell31.addEventListener('click', function(){draw(cell31)});
-            cell32.addEventListener('click', function(){draw(cell32)});
-            cell33.addEventListener('click', function(){draw(cell33)});
+            cell11.addEventListener('click', function () { draw(cell11) });
+            cell12.addEventListener('click', function () { draw(cell12) });
+            cell13.addEventListener('click', function () { draw(cell13) });
+            cell21.addEventListener('click', function () { draw(cell21) });
+            cell22.addEventListener('click', function () { draw(cell22) });
+            cell23.addEventListener('click', function () { draw(cell23) });
+            cell31.addEventListener('click', function () { draw(cell31) });
+            cell32.addEventListener('click', function () { draw(cell32) });
+            cell33.addEventListener('click', function () { draw(cell33) });
+
         }
 
-        function play(){
+        function play() {
             currentPlayer = obtainWhoIsPlaying();
             document.getElementById("current_player").innerText = currentPlayer.name;
-            document.getElementById("symbol_player").innerText = currentPlayer.symbol;
         }
-        
-        function draw(cellSelected){
+
+        function draw(cellSelected) {
+
             let elementsTd = document.getElementById("boardTable").getElementsByTagName("td");
-            for (let index = 0; index < elementsTd.length; index++) {               
-                if(elementsTd[index].id === cellSelected.id){
-                    if(elementsTd[index].innerText==null||elementsTd[index].innerText==''){
-                        elementsTd[index].innerText = obtainWhoIsPlaying().symbol;
-                        //obtainWinner(elementsTd);
-                        updatePlayersStatus();
-                        play();
+
+            if (!checkGame(elementsTd)) {
+                for (let index = 0; index < elementsTd.length; index++) {
+                    if (elementsTd[index].id === cellSelected.id) {
+                        if (elementsTd[index].innerText == null || elementsTd[index].innerText == '') {
+                            elementsTd[index].innerText = obtainWhoIsPlaying().symbol;
+
+                        }
                     }
                 }
+                updatePlayersStatus();
+                play();
+                checkGame(elementsTd);
             }
 
-            updateCell(cellSelected,elementsTd);
         }
 
-        function updateCell(cellSelected,elementsTd){
+        function checkGame(elementsTd) {
             let cells = new Array(3);
-            let j = 0;           
-            let countElements = elementsTd.length/cells.length;
-         
-            for (let i = 0, j= -1; i < elementsTd.length; i++) {
-                if(i%countElements===0){
+            let j = 0;
+            let countElements = elementsTd.length / cells.length;
+
+            for (let i = 0, j = -1; i < elementsTd.length; i++) {
+                if (i % countElements === 0) {
                     j++;
                     cells[j] = [];
                 }
-                
+
                 cells[j].push(elementsTd[i].innerText);
             }
-            
-            obtainWinner(cells)
+
+            isWinner = checkWinner(cells);
+            if (isWinner) {
+                actualPlayer = obtainWhoIsPlaying()
+                //document.getElementById("next_player").style.display = 'none';
+                document.getElementById("player").style.display = 'block';
+                document.getElementById("player").innerText = actualPlayer.name;
+                document.getElementById("player").style.color = '#e84118';
+                document.getElementById("game_status").style.display = 'block';
+                document.getElementById("game_status").innerText = "ganaste!";
+                document.getElementById("game_status").style.color = '#e84118';
+                return true;
+            } else if (isWinner === false) {
+                //Empate
+                document.getElementById("game_status").style.display = 'block';
+                document.getElementById("game_status").innerText = "Empate!";
+                document.getElementById("game_status").style.color = '#d35400';
+                return false;
+            }
         }
-   </script>
+
+        function clearBoard() {
+            let elementsTd = document.getElementById("boardTable").getElementsByTagName("td")
+            for (let i = 0; i < elementsTd.length; ++i) {
+                elementsTd[i].innerText = '';
+            }
+            document.getElementById("game_status").style.display = 'player';
+            document.getElementById("next_player").style.display = 'none';
+            document.getElementById("game_status").style.display = 'none';
+            initGame(document.getElementById("name_p1").innerText, document.getElementById("name_p2").innerText)
+
+        }
+
+        function back() {
+
+        }
+    </script>
 </head>
+
 <body>
-    <div id = "dataPlayers">
-        <label for="player1">Jugador 1</label>
-        <input type="text" name="player1" value="Jugador uno" id="player1"><br><br>
-        <label for="player2" >Jugador 2</label>
-        <input type="text" name="player2" value="Jugador dos" id="player2"><br><br>
-        <button type="button" onclick="loadBoard()"> Jugar </button> 
-    </div>
-
-    <div id="gameZone" style="display: none;">
-        <table id="playerZone">
-            <tr>
-                <td id="symbol1"></td>
-                <td id="name_p1"></td>
-            </tr>
-            <tr>
-                <td id="symbol2"></td>
-                <td id="name_p2"></td>
-            </tr>
-        </table>
-
-
-        <div id="board"> 
-            <table id="boardTable">
-                <tr>
-                    <td id="cell11"></td>
-                    <td id="cell12"></td>
-                    <td id="cell13"></td>
-                </tr>
-                <tr>
-                    <td id="cell21"></td>
-                    <td id="cell22"></td>
-                    <td id="cell23"></td>
-                </tr>
-                <tr>
-                    <td id="cell31"></td>
-                    <td id="cell32"></td>
-                    <td id="cell33"></td>
-                </tr>
-            </table>
+    <div class="container">
+        <div class="alert alert-danger" role="alert" id="alert_empty_name" style="display: none; text-align: center;">
+            Debe ingresar los nombres de los jugadores para continuar.
         </div>
-        <div>
-            <label>Juega <span id="current_player"></span> <span id="symbol_player"></span> </label>
+        <div class="card border-dark mb-3" style="width: 20rem;margin: auto;margin-top: 5rem;" id="dataPlayers">
+            <div class="card-header text-white" style="background-color: #2ecc71;">
+                <h3> Tateti</h3>
+            </div>
+            <div class="card-body text-dark" id="input_players">
+                <label for="player1">Jugador 1</label>
+                <input class="form-control" type="text" name="player1" id="player1" required><br><br>
+                <label for="player2">Jugador 2</label>
+                <input class="form-control" type="text" name="player2" id="player2" required><br><br>
+                <button type="button" class="btn btn-primary btn-lg btn-block" onclick="loadBoard()"> Jugar </button>
+
+            </div>
         </div>
     </div>
 
-    
+    <div style="display: none" id="gameZone">
+        <h3 class="p-3 mb-2 text-white">Tateti</h3>
+        <div class="container" style="text-align: -webkit-center; padding-top: 5%;">
+            <div class="card mb-3 text-center" style="max-width: 700px; border-radius: 10px;">
+                <div class="row no-gutters border rounded">
+                    <div class="col-md-6">
+                        <div class="card-body">
+                            <h5 class="card-title" id="next_player">
+                                Juega <span id="current_player"></span> </span>
+                            </h5>
+                            <p class="card-text" style="text-align: center;">
+                                <table id="boardTable">
+                                    <tbody>
+                                        <tr>
+                                            <td id="cell11"></td>
+                                            <td id="cell12"></td>
+                                            <td id="cell13"></td>
+                                        </tr>
+                                        <tr>
+                                            <td id="cell21"></td>
+                                            <td id="cell22"></td>
+                                            <td id="cell23"></td>
+                                        </tr>
+                                        <tr>
+                                            <td id="cell31"></td>
+                                            <td id="cell32"></td>
+                                            <td id="cell33"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-center">
+                        <div class="card-body " style="text-align: center;">
+                            <h5 class="card-title" id="players_info">Jugadores</h5>
+                            <p class="card-text text-center">
+                                <span id="symbol1"></span> <span id="name_p1"></span><br>
+                                <span id="symbol2"></span> <span id="name_p2"></span><br>
+                                <label><span id="player"> </span><span id="game_status"></span></label>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 5%;">
+            <button type="button" class="btn btn-success btn-lg btn-new" onclick="clearBoard()"
+                style="min-width: 25px;">Reiniciar</button>
+            <button type="button" class="btn btn-primary btn-lg" onclick="back()"
+                style="min-width: 25px">Volver</button>
+        </div>
+    </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+
 </body>
+
 </html>

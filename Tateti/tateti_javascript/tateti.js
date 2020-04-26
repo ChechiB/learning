@@ -20,17 +20,10 @@ class Player{
 let playerOne = null;
 let playerTwo = null;
 
-function initGame(nameP1, nameP2){
-    //Inicializar jugadores
-    initPlayers(nameP1,nameP2);
-    
-    return players;
-}
-
 function initPlayers(nameP1, nameP2){
     if(Math.random() <0.5){
         playerOne = new Player(nameP1,"X",true);
-        playerTwo = new Player(nameP2, "O",false)
+        playerTwo = new Player(nameP2, "O",false);
         console.log("player 1 comienza")
     }else{
         playerOne = new Player(nameP1,"O",false);
@@ -43,8 +36,8 @@ function initPlayers(nameP1, nameP2){
     return players;
 }
 
-function obtainWinner(cells){
-    console.log(determineHorizontal(cells));
+function isWinner(cells){
+    return checkWinner(cells);
 } 
 
 function updatePlayersStatus(){
@@ -65,7 +58,85 @@ function obtainWhoIsPlaying(){
     }
 }
 
-function transpose(cells){           
+
+function checkWinner(cells){
+    let coincidences= false;
+    let emptyMatrix = false;
+
+    vertical = determineVerticalLines(cells);
+    cross = determineCrooslines(cells);
+
+    //Verficar si la matriz tiene alguna ubicacion vacia -> Calculo para determinar el empate
+    if(containsEmptyCell(cells)){
+        emptyMatrix = true;
+    }
+
+    if (checkCoincidence(cells)||checkCoincidence(vertical)||checkCoincidence(cross)){
+        coincidences = true;
+    }
+
+    if(coincidences === true){
+        console.log("Winner")
+        return true;
+    }else if(coincidences === false && emptyMatrix===false){
+        console.log("match")
+        return false;
+    }
+    
+}
+
+function checkCoincidence(cells){
+    for (let i = 0; i < cells.length; i++) {
+        horizontalLine = []             
+        horizontalLine = cells[i];  
+        if (checkHorizontalLine(horizontalLine)){
+            return true;
+        }        
+    }
+
+}
+function checkHorizontalLine(horizontalLine){
+   
+   if(horizontalLine[0] == ""){
+       return false;
+   } 
+
+   for (let i = 1; i < horizontalLine.length; i++) {
+       if(horizontalLine[0]!== horizontalLine[i]){
+           return false;
+       }
+       
+   }
+   
+   /* Impractico para determinar empate 
+    for (let i = 0; i < horizontalLine.length-1; i++) {
+        if(horizontalLine[i] == "" || horizontalLine[i+1] ==""){
+            return false;
+        }else{
+            if(horizontalLine[i]!= horizontalLine[i+1]){
+                return tmpNumC = 1;
+            }else{
+                tmpNumC += 1;
+            }
+        }  
+        
+    } */
+    
+    return true;
+}
+
+function containsEmptyCell(cells){
+    for (let i = 0; i < cells.length; i++) {
+        for (let j = 0; j < cells[i].length; j++) {
+            if(cells[i][j] ===""){
+                return true;
+            }            
+        }        
+    }   
+    return false; 
+}
+
+function determineVerticalLines(cells){           
     let verticalLines = []
     for (let i = 0; i < cells.length; i++) {
         determineVerticalLine = []
@@ -77,50 +148,7 @@ function transpose(cells){
     return verticalLines;
 }
 
-//Extraer la fila donde se encuentra la celda seleccionada y validar si es igual al resto de los elementos
-//de la fila
-function determineHorizontal(cells){
-    coincidences = true;
-    console.log("cells: ", cells)
-    let coincidence = false;
-
-    for (let i = 0; i < cells.length; i++) {
-        horizontalLine = []
-        for (let j = 0; j < cells[i].length; j++) {
-            horizontalLine[i] = cells[i].innerText;               
-            if (checkHorizontalLine(horizontalLine)){
-                console.log("Ganador")
-                return true;
-            }   
-        }
-        
-    }
-
-    return coincidences;
-}
-
-function checkHorizontalLine(horizontalLine){
-    let tmp = false;
-    for (let i = 0; i < horizontalLine.length-1; i++) {
-        if(horizontalLine[i] != ""){
-            if(horizontalLine[i]!= horizontalLine[i+1]){
-                console.log("En no ganador")
-                tmp = false;
-            }    
-        }
-    }
-    return tmp;
-}
-
-function checkCrosslineRight(cells){
-
-}
-
-function checkCrosslineLeft(cells){
-
-}
-
-function determineCroosline(cells){
+function determineCrooslines(cells){
     let principalD = []
     let secondaryD = []
 
@@ -131,10 +159,8 @@ function determineCroosline(cells){
             }
             if(i+j === cells.length-1){
                 secondaryD.push(cells[i][j]);
-            }
-            
-        }
-        
+            }            
+        }        
     }
 
     crossline = new Array(principalD,secondaryD)
