@@ -1,13 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET all Contracts. */
-router.get('/contracts', function(req, res, next) {
-    
-        res.send('respond with a resource');
-   
-  
-});
+
 
 
 /* Get a Contract */
