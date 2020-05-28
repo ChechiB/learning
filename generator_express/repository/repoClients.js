@@ -2,17 +2,21 @@ let helperRedis = require('../repository/helperDB');
 let redisClient = helperRedis.redisClient;
 
 const { promisify } = require("util");
+let {ErrorHandler} = require('../helpers/errorHandler')
 const keysAsync = promisify(redisClient.keys).bind(redisClient);
 const delAsync = promisify(redisClient.del).bind(redisClient);
 const getAsync = promisify(redisClient.hgetall).bind(redisClient);
 const existAsync = promisify(redisClient.exists).bind(redisClient);
 
 
-const saveClient = async(obj)=>{
+const saveClient = async (obj)=>{
     let resulSet = 0;
     /*if client doesn't exist, save it*/
-    if (validateJson(obj)){
-        throw new ErrorHandler(400,"Wrong Json structure")
+    try {
+        validateJson(obj)
+
+    } catch (error) {
+        throw error
     }
 
     if(!(await existAsync(obj.idClient))){
@@ -34,7 +38,8 @@ const deleteClient = async (idClient)=>{
     let resulSet = 0;
 
     if(!(await existAsync(obj.idClient))){
-        redisClient.multi(await delAsync(`client${idClient}`),await delAsync(`client${idClient}contract${idContract}`)
+        await delAsync(`client${idClient}`)
+        await delAsync(`client${idClient}contract${idContract}`)
     }
     
     
@@ -133,19 +138,19 @@ const saveContract = async (idClient,obj) =>{
 
 const updateContract = (idClient,idContract,obj)=>{}
 
-const deleteContract = 
 
 const validateJson = (obj)=>{
+    console.log("En validar Json")
     let clientKeys = ['name','lastname','idClient']
     let keysDict = Object.keys(obj)
 
     if (clientKeys.length !== keysDict.length){
-        return 0;
+        throw new ErrorHandler('400','Wrong Json')
     }
 
     for (let index = 0; index < clientKeys.length; index++) {
-        if(keysDict[i] !== clientKeys[i] || !keysDict[i].length){
-            return 0;
+        if(keysDict[index] !== clientKeys[index] || !keysDict[index].length){
+            throw new ErrorHandler('400','Wrong Json')
         }
         
     }

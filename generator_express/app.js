@@ -22,8 +22,10 @@ app.use('/clients', clientsRouter);
 app.use('/contracts', contractsRouter)
 
 app.use((err, req, res, next) => {
-    handleError(err, res);
-    next()
+  //err.isServer
+   let result = handleError(err, res) ;
+   result.send(result.body)
+  next()
 });
 
 const redis = require("redis");

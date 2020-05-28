@@ -48,10 +48,10 @@ router.get('/:idClient', async function(req, res, next) {
 /* Save new Client */
 /*"param1=value1&param2=value2"*/
 router.post('/', async function(req, res, next) {
-    if(!req.body || !req.body.name || !req.body.lastname || !req.body.idClient){
+    /* if(!req.body || !req.body.name || !req.body.lastname || !req.body.idClient){
         msgResponse.buildResponse(400, 'Error', "Save not success")
-    }
-
+    } */
+    console.log("Body", req.body)
     try{
         let result = await saveClient(req.body)
         if(!result){
@@ -59,7 +59,9 @@ router.post('/', async function(req, res, next) {
         }else{
             res.send( msgResponse.buildResponse(200, 'Ok', "Success"));
         }
-    }catch(error){
+        next()
+    }catch(error){ 
+        console.log("Error consola", error)
         next(error);
     }
 });
