@@ -1,9 +1,11 @@
 var crypto = require('crypto');
 
-let hash = function(player_name){
+const generateHash = (player_name)=>{
+    console.log("player_name",player_name);
+    
     return crypto.createHash('md5').update(player_name).digest('hex');
 }
 
-module.export = {
-    hash
+module.exports = {
+    generateHash
 }

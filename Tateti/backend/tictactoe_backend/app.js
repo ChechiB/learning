@@ -4,7 +4,9 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var campaignRoute = require('./routes/campaign')
+
+var {handleError} = require('./helpers/errorHandler')
 
 var app = express();
 
@@ -15,7 +17,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/campaign',campaignRoute);
 
 app.use((err, req, res, next) => {
     //err.isServer

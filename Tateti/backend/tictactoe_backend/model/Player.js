@@ -1,16 +1,19 @@
 player = {
-    name: player_name,
-    symbol: symbol_player,
+    playerName: null,
+    idPlayer : null
 }
 
-let getPlayerName = function(){
-    return player.name
+let setPlayer = function(playerName, idPlayer){
+    player.playerName = playerName
+    player.idPlayer = idPlayer
 }
 
-let getPlayerSymbol = function(){
-    return player.symbol
-}
 
 let getPlayer = function(){
+    return player 
+}
+
+module.exports = {
+    setPlayer,
     getPlayer
 }

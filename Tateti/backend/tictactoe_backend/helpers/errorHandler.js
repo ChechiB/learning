@@ -13,13 +13,6 @@ class ErrorHandler extends Error {
 const handleError = (err, res) => {
   console.log("handleError",err)
     const { statusCode, response } = err;
-    /* res.status(statusCode)
-    res.body.json({
-      status: "error",
-      statusCode,
-      response
-    });
-   */
     res.status(statusCode)
     res.body = {status: "error", statusCode, response}
     console.log('err',err);

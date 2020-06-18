@@ -5,15 +5,12 @@ const { promisify } = require("util");
 let {ErrorHandler} = require('../helpers/errorHandler')
 const keysAsync = promisify(redisClient.keys).bind(redisClient);
 const delAsync = promisify(redisClient.del).bind(redisClient);
-const getAsync = promisify(redisClient.hgetall).bind(redisClient);
+const getAllAsync = promisify(redisClient.hgetall).bind(redisClient);
 const existAsync = promisify(redisClient.exists).bind(redisClient);
 
-const create = async(obj)=>{
-    if(!(await existAsync(obj.idCampaing))){
-        resulSet = await redisClient.hset(`campaign${obj.idCampaing}`, 'hash', obj.hash, 'p1_name', obj.p1_name, 'p2_name', obj.p2_name,
-        'p1_symbol', obj.p1_symbol, 'p2_symbol', obj.p2_symbol, 'p1_score', obj.p1_score,'p2_score', obj.p2_score,
-        'ties', obj.ties,'id_campaign', obj.id_campaign)
-    }    
+const save = async(obj)=>{    
+    let resulSet = await redisClient.hset(`campaign${obj.idCampaign}`, 'p1Score', obj.p1Score,
+       'p2Score', obj.p2Score, 'ties', obj.ties)    
     return resulSet;
 }
 
@@ -25,10 +22,17 @@ const del = async() =>{
 
 }
 
-const get = async() =>{
+const findById = async(id) =>{
+    let resulset = await getAllAsync(`campaign${id}`)
+
+    return {campaign: resulset};
+}
+
+const findAll = async() =>{
 
 }
 
 module.exports = {
-    create
+    save,
+    findById
 }

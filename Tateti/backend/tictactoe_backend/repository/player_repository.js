@@ -9,9 +9,9 @@ const getAsync = promisify(redisClient.hgetall).bind(redisClient);
 const existAsync = promisify(redisClient.exists).bind(redisClient);
 
 
-const create = async()=>{
+const create = async(obj)=>{
     if(!(await existAsync(obj.idPlayer))){
-        resulSet = await redisClient.hset(`player${obj.idPlayer}`, 'name', obj.name, 'idPlayer', obj.idPlayer)
+        resulSet = await redisClient.hset(`player${obj.idPlayer}`, 'playerName', obj.playerName)
     }    
     return resulSet;
 }

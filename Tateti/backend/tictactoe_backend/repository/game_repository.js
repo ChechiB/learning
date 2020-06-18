@@ -12,7 +12,7 @@ const {hash} = require('../helpers/generalHelper')
 
 const create = async()=>{
     if(!(await existAsync(obj.idPlayer))){
-        resulSet = await redisClient.hset(`player${obj.idPlayer}`, 'name', obj.name, 'idPlayer', obj.idPlayer)
+        resulSet = await redisClient.hset(`player${obj.idPlayer}`, 'playerName', obj.name, 'idPlayer', obj.idPlayer)
     }    
     return resulSet;
 }
