@@ -1,6 +1,7 @@
 let repoPlayerGame = require('../repository/player_game_repository');
 const playerGame = require('../model/PlayerGame')
-const base_service = require('../service/base_service')
+const base_service = require('../service/base_service');
+const player_game_repository = require('../repository/player_game_repository');
 
 const savePlayerGame = async(idPlayer, idCampaign)=>{
     //Generate symbol
@@ -17,6 +18,10 @@ const savePlayerGame = async(idPlayer, idCampaign)=>{
     await base_service.setLastId(lastPGId)
 }
 
+const getPlayerGameList = async(id)=>{
+    return await player_game_repository.findAllByGame(id)
+}
+
 const generate_symbol = function(){
     if(Math.random() <0.5){
         return "X"
@@ -25,5 +30,7 @@ const generate_symbol = function(){
 }
 
 module.exports = {
-    savePlayerGame
+    savePlayerGame,
+    getPlayerGameList,
+    
 }

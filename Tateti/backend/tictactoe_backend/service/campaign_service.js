@@ -15,6 +15,7 @@ const initCampaign = async(obj)=>{
     lastcampaignId = await base_service.getLastId('campaignId')
     actualCampaignId = parseInt(lastcampaignId)+1
     campaign.initCampaign(actualCampaignId)
+    console.log('actualCampaignId',actualCampaignId)
 
     //Save 
     let playerDict = await player_service.createPlayer(obj)
@@ -22,7 +23,7 @@ const initCampaign = async(obj)=>{
     await player_game_service.savePlayerGame(playerDict.idPlayer, actualCampaignId)
     await base_service.saveHash(hash, actualCampaignId)
     //Update ids counters
-    await base_service.setLastId(lastcampaignId)
+    await base_service.setLastId('campaignId')
 
     return {hash: hash}
 }
@@ -31,14 +32,17 @@ const initCampaign = async(obj)=>{
 const joinCampaign = async(hash,obj) =>{
     //Search campaign
     let idCampaign = await base_service.getByHash(hash)
-    let campaign = await campaign_repository.findById(idCampaign)
-    console.log('campaign',campaign)
-
+    console.log('idCampaign',idCampaign)
+    let result = await campaign_repository.findById(idCampaign)
+    console.log('result',result)
+    //Check amount of players
+    let playerGameList = await player_game_service.getPlayerGameList(idCampaign)
+    if(playerGameList.length !==1){
+        console.log("No se permiten mas de dos jugadores")
+    }
     //Create player 2
     let playerDict = await player_service.createPlayer(obj)
-    await player_game_service.savePlayerGame(playerDict.idPlayer, campaign.idCampaign)
-    await base_service.saveHash(hash, campaign.idCampaign)
-    console.log('campaign.idCampaign',campaign.idCampaign)
+    await player_game_service.savePlayerGame(playerDict.idPlayer, idCampaign)
     //Create board    
 }
 

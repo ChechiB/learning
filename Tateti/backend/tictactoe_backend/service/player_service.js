@@ -6,10 +6,11 @@ const createPlayer = async(obj)=>{
     lastPlayerId = await base_service.getLastId('playerId')
     console.log('lastPlayerId',lastPlayerId)
     actualPlayerID = parseInt(lastPlayerId)+1
+    console.log('actualPlayerID',actualPlayerID)
     player.setPlayer(obj.playerName, actualPlayerID)
     
     repoPlayer.create(player.getPlayer())
-    await base_service.setLastId(lastPlayerId)
+    await base_service.setLastId('playerId')
 
     return player.getPlayer()
 }
