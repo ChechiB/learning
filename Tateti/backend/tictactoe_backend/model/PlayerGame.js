@@ -1,12 +1,12 @@
 playerGame = {
     idPlayer : null,
-    idCampaign: null,
+    idGame: null,
     symbol: null
 }
 
-let setPlayerGame = function(idPlayer,idCampaign, symbol){
+let setPlayerGame = function(idPlayer,idGame, symbol){
     playerGame.idPlayer = idPlayer,
-    playerGame.idCampaign = idCampaign
+    playerGame.idGame = idGame
     playerGame.symbol = symbol
 }
 

@@ -10,12 +10,16 @@ const savePlayerGame = async(idPlayer, idCampaign)=>{
     //Create intermediate 
     lastPGId = await base_service.getLastId('playerGameId')
     actualPGId = parseInt(lastPGId)+1
-    playerGame.setPlayerGame(idPlayer, idCampaign, symbol)
+    playerGame.setPlayerGame(idPlayer, actualPGId, symbol)
 
     //Save PlayerGame
-    repoPlayerGame.create(playerGame.getPlayerGame())
+    let resultSet = await repoPlayerGame.create(playerGame.getPlayerGame())
 
-    await base_service.setLastId(lastPGId)
+    if(resultSet!==0){
+        return {idPlayerGame: await base_service.setLastId(lastPGId)}
+    }
+    return {}
+
 }
 
 const getPlayerGameList = async(id)=>{

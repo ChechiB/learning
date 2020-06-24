@@ -10,11 +10,18 @@ const existAsync = promisify(redisClient.exists).bind(redisClient);
 const {hash} = require('../helpers/generalHelper')
 
 
-const create = async()=>{
-    if(!(await existAsync(obj.idPlayer))){
-        resulSet = await redisClient.hset(`player${obj.idPlayer}`, 'playerName', obj.name, 'idPlayer', obj.idPlayer)
-    }    
-    return resulSet;
+const create = async(obj)=>{
+    console.log("OBJ GAME",obj)
+    return await redisClient.hset(`game${obj.idGame}`, 'state', obj.state, 
+        'cell0', obj.cell0,
+        'cell1', obj.cell1,
+        'cell2', obj.cell2,
+        'cell3', obj.cell3,
+        'cell4', obj.cell4,
+        'cell5', obj.cell5,
+        'cell6', obj.cell6,
+        'cell7', obj.cell7,
+        'cell8', obj.cell8)   
 }
 
 const update = async() =>{

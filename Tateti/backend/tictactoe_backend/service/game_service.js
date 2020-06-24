@@ -1,15 +1,26 @@
 const { promisify } = require("util");
 let {ErrorHandler} = require('../helpers/errorHandler')
 const {hash} = require('../helpers/generalHelper')
+const game = require('../model/Game')
+const game_repository = require('../repository/game_repository')
+const base_service = require('../service/base_service')
+const player_service = require('../service/player_service')
+const player_game_service = require('../service/player_game_service')
 
-//Import services
-const playerService = require('../service/player_service')
-const boardService = require('../service/board_service')
-
-const initGame = async(obj) => {
-    //Set campaign
+const initGame = async(obj,idCampaign) => {
+    let gameDict = game.getGame()
+    gameDict.idCampaign = idCampaign
+    lastGameId = await base_service.getLastId('gameId')
+    gameDict.idGame = parseInt(lastGameId)+1
     
-    //
+    await game_repository.create(gameDict)
+    let playerDict = await player_service.createPlayer(obj)
+    await player_game_service.savePlayerGame(playerDict.idPlayer, gameDict.idGame)
+
+    //Update ids counters
+    await base_service.setLastId('gameId')
+
+    return {idGame: gameDict.idGame}
 }
 
 
@@ -133,4 +144,8 @@ function determineCrooslines(cells){
 
     crossline = new Array(principalD,secondaryD)
     return crossline;
+}
+
+module.exports = {
+    initGame
 }

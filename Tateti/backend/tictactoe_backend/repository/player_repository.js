@@ -10,10 +10,7 @@ const existAsync = promisify(redisClient.exists).bind(redisClient);
 
 
 const create = async(obj)=>{
-    if(!(await existAsync(obj.idPlayer))){
-        resulSet = await redisClient.hset(`player${obj.idPlayer}`, 'playerName', obj.playerName)
-    }    
-    return resulSet;
+    return  await redisClient.hset(`player${obj.idPlayer}`, 'playerName', obj.playerName)
 }
 
 const update = async() =>{

@@ -11,14 +11,11 @@ const existAsync = promisify(redisClient.exists).bind(redisClient);
 
 
 const create = async(obj)=>{
-    if(!(await existAsync(`player${obj.idPlayer}campaign${obj.idCampaign}`))){
-        resulSet = await redisClient.hset(`player${obj.idPlayer}campaign${obj.idCampaign}`, 'symbol', obj.symbol)
-    }    
-    return resulSet;
+    return await redisClient.hset(`player${obj.idPlayer}game${obj.idGame}`, 'symbol', obj.symbol)
 }
 
-const findAllByGame = async(idCampaign)=>{
-    let resulSet = await keysAsync(`player*campaign${idCampaign}`)
+const findAllByGame = async(idGame)=>{
+    let resulSet = await keysAsync(`player*game${idGame}`)
     console.log('resulSet',resulSet)
     if(!resulSet.length) return [];
     return resulSet;

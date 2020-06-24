@@ -5,45 +5,49 @@ const player_game_service = require('../service/player_game_service')
 const campaign = require('../model/Campaign')
 const base_service = require('../service/base_service')
 const campaign_repository = require('../repository/campaign_repository')
+const game_service = require('../service/game_service')
 
 const initCampaign = async(obj)=>{
-    //Generate Hash
-   
-    let hash = general_helper.generateHash(obj.playerName)
-    
+    //Generate Hash   
+    let hash = general_helper.generateHash(obj.playerName)  
     //Create campaign
     lastcampaignId = await base_service.getLastId('campaignId')
     actualCampaignId = parseInt(lastcampaignId)+1
-    campaign.initCampaign(actualCampaignId)
-    console.log('actualCampaignId',actualCampaignId)
+    let lstId = await game_service.initGame(obj, actualCampaignId)
+    campaign.initCampaign(actualCampaignId, lstId.idGame)
 
     //Save 
-    let playerDict = await player_service.createPlayer(obj)
-    await campaign_repository.save(campaign.getCampaign())
-    await player_game_service.savePlayerGame(playerDict.idPlayer, actualCampaignId)
-    await base_service.saveHash(hash, actualCampaignId)
+    await campaign_repository.save(campaign.getCampaign())    
+    await base_service.saveHash(hash, actualCampaignId)    
     //Update ids counters
     await base_service.setLastId('campaignId')
 
-    return {hash: hash}
+    return {lastcampaignId,
+        hash: hash}
 }
 
-
+//Validar si el jugador pertenece a la campaña a ala que intenta ingresar
 const joinCampaign = async(hash,obj) =>{
     //Search campaign
     let idCampaign = await base_service.getByHash(hash)
-    console.log('idCampaign',idCampaign)
-    let result = await campaign_repository.findById(idCampaign)
-    console.log('result',result)
+    //Search the game associated with the campaign
+    let resultCampaign = await campaign_repository.findById(idCampaign)
+    console.log("resultCampaign",resultCampaign)
+    let lastGameId = resultCampaign.lastGameId
+    console.log("lastGameId",lastGameId)
+    
     //Check amount of players
-    let playerGameList = await player_game_service.getPlayerGameList(idCampaign)
-    if(playerGameList.length !==1){
+    let playerGameList = await player_game_service.getPlayerGameList(lastGameId)
+    if(playerGameList.length >2){
         console.log("No se permiten mas de dos jugadores")
+    }else{
+        let playerDict = await player_service.createPlayer(obj)
+        await player_game_service.savePlayerGame(playerDict.idPlayer, lastGameId)
+
+        return {idCampaign: idCampaign,
+            hash: hash,}
     }
-    //Create player 2
-    let playerDict = await player_service.createPlayer(obj)
-    await player_game_service.savePlayerGame(playerDict.idPlayer, idCampaign)
-    //Create board    
+     
 }
 
 
