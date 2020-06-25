@@ -1,11 +1,11 @@
-const { promisify } = require("util");
 let {ErrorHandler} = require('../helpers/errorHandler')
-const {hash} = require('../helpers/generalHelper')
-const game = require('../model/Game')
-const game_repository = require('../repository/game_repository')
-const base_service = require('../service/base_service')
-const player_service = require('../service/player_service')
-const player_game_service = require('../service/player_game_service')
+const game = require('../model/Game');
+const game_repository = require('../repository/game_repository');
+const base_service = require('../service/base_service');
+const player_service = require('../service/player_service');
+const player_game_service = require('../service/player_game_service');
+const campaign_service = require('../service/campaign_service');
+
 
 const initGame = async(obj,idCampaign) => {
     let gameDict = game.getGame()
@@ -15,7 +15,8 @@ const initGame = async(obj,idCampaign) => {
     
     await game_repository.create(gameDict)
     let playerDict = await player_service.createPlayer(obj)
-    await player_game_service.savePlayerGame(playerDict.idPlayer, gameDict.idGame)
+    playerDict.symbol = ""
+    await player_game_service.savePlayerGame(playerDict, gameDict.idGame)
 
     //Update ids counters
     await base_service.setLastId('gameId')
@@ -23,29 +24,62 @@ const initGame = async(obj,idCampaign) => {
     return {idGame: gameDict.idGame}
 }
 
+const saveMove = async (hash,cellValue,obj)=>{
+    console.log("hash",hash,"cellValue",cellValue,"obj",obj);
 
+   let resultCampaign = campaign_service.getCampaign
+   
+    //Get game
+    let lastGameId = resultCampaign.lastGameId
+    let game = await game_repository.findById(lastGameId)
+    let playerGame = await player_game_service.getPlayerGame(obj.idPlayer,lastGameId)
+
+    if(playerGame){
+        let cell = "cell" + cellValue 
+        if(game.cell !==""){
+            game.cell == playerGame.symbol
+            isWinner(game.getCells())
+            //Si hay ganador, sumar score
+        }
+    }
+
+}
 
 function isWinner(cells){
     return checkWinner(cells);
 } 
 
-function obtainWhoIsPlaying(){
-    if (playerOne.isPlaying === true){
-        return playerOne;
+const setNextPlayer = async function(obj, idGame){
+    let game = await game_repository.findById(idGame)
+    await game_repository.create(obtainWhoIsPlaying(obj,game))
+}
+
+const obtainWhoIsPlaying = function(obj,game){
+    if (game.nextPlayer === ""){
+        if(Math.random() <0.5){
+            game.nextPlayer = obj[0].idPlayer
+        }else{
+            game.nextPlayer = obj[1].idPlayer
+        }
+    }else if (game.nextPlayer === obj[0].idPlayer){
+        game.nextPlayer = obj[1].idPlayer
     }else{
-        return playerTwo;
+        game.nextPlayer = obj[0].idPlayer
     }
+
+    return game;
 }
 
 
 function checkWinner(cells){
+    console.log("Cells",cells)
     let coincidences= false;
     let emptyMatrix = false;
 
     vertical = determineVerticalLines(cells);
     cross = determineCrooslines(cells);
 
-    //Verficar si la matriz tiene alguna ubicacion vacia -> Calculo para determinar el empate
+    //To check tie
     if(containsEmptyCell(cells)){
         emptyMatrix = true;
     }
@@ -86,21 +120,7 @@ function checkHorizontalLine(horizontalLine){
        }
        
    }
-   
-   /* Impractico para determinar empate 
-    for (let i = 0; i < horizontalLine.length-1; i++) {
-        if(horizontalLine[i] == "" || horizontalLine[i+1] ==""){
-            return false;
-        }else{
-            if(horizontalLine[i]!= horizontalLine[i+1]){
-                return tmpNumC = 1;
-            }else{
-                tmpNumC += 1;
-            }
-        }  
-        
-    } */
-    
+      
     return true;
 }
 
@@ -147,5 +167,7 @@ function determineCrooslines(cells){
 }
 
 module.exports = {
-    initGame
+    initGame,
+    saveMove,
+    setNextPlayer
 }

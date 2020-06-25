@@ -28,29 +28,36 @@ const initCampaign = async(obj)=>{
 
 //Validar si el jugador pertenece a la campaña a ala que intenta ingresar
 const joinCampaign = async(hash,obj) =>{
+    let resultCampaign = await getCampaign(hash)
+    let lastGameId = resultCampaign.lastGameId    
+    let playerOne = {}
+    //Check amount of players
+    let playerGameList = await player_game_service.getKeys(lastGameId)
+        if(playerGameList.length >2){
+        console.log("No se permiten mas de dos jugadores")
+    }else{
+        //Set symbol
+        let patt1 = /[0-9]+/g;
+        playerOne.idPlayer = playerGameList[0].toString().match(patt1)[0];
+        let playerTwo = await player_service.createPlayer(obj)
+        let players = player_game_service.generate_symbol(playerOne, playerTwo)
+        let playerGameTwoId = await player_game_service.savePlayerGame(playerTwo, lastGameId)
+        //Update playerGame 
+        await player_game_service.savePlayerGame(players[0],lastGameId)
+        await game_service.setNextPlayer(players,lastGameId)
+        return {idCampaign: resultCampaign.idCampaign,
+            hash: hash}
+    }
+}
+
+const getCampaign = async(hash)=>{
     //Search campaign
     let idCampaign = await base_service.getByHash(hash)
     //Search the game associated with the campaign
     let resultCampaign = await campaign_repository.findById(idCampaign)
-    console.log("resultCampaign",resultCampaign)
-    let lastGameId = resultCampaign.lastGameId
-    console.log("lastGameId",lastGameId)
     
-    //Check amount of players
-    let playerGameList = await player_game_service.getPlayerGameList(lastGameId)
-    if(playerGameList.length >2){
-        console.log("No se permiten mas de dos jugadores")
-    }else{
-        let playerDict = await player_service.createPlayer(obj)
-        await player_game_service.savePlayerGame(playerDict.idPlayer, lastGameId)
-
-        return {idCampaign: idCampaign,
-            hash: hash,}
-    }
-     
+    return resultCampaign
 }
-
-
 
 let calculateScore = function(){
 
@@ -59,6 +66,7 @@ let calculateScore = function(){
 
 module.exports = {
     initCampaign,
-    joinCampaign
+    joinCampaign,
+    getCampaign
 }
 

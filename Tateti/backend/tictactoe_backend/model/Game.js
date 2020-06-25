@@ -1,5 +1,6 @@
 let game = {
     state: true,
+    nextPlayer: "",
     cell0: "",
     cell1: "",
     cell2: "",
@@ -28,7 +29,20 @@ let getGame = function(){
     return game
 }
 
+let getCells = function(){
+    return [[game.cell0,
+        game.cell1,
+        game.cell2],
+        [game.cell3,
+        game.cell4,
+        game.cell5],
+        [game.cell6,
+        game.cell7,
+        game.cell8]]
+}
+
 module.exports = {
     setGame,
-    getGame
+    getGame,
+    getCells
 }

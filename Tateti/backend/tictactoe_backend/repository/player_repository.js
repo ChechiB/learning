@@ -21,10 +21,11 @@ const del = async() =>{
 
 }
 
-const get = async() =>{
-
+const findById = async(idPlayer) =>{
+    return await getAsync(`player${idPlayer}`)
 }
 
 module.exports = {
-    create
+    create,
+    findById
 }

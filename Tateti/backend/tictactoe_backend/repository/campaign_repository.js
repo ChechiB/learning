@@ -5,7 +5,7 @@ const { promisify } = require("util");
 let {ErrorHandler} = require('../helpers/errorHandler')
 const keysAsync = promisify(redisClient.keys).bind(redisClient);
 const delAsync = promisify(redisClient.del).bind(redisClient);
-const getAllAsync = promisify(redisClient.hgetall).bind(redisClient);
+const getAsync = promisify(redisClient.hgetall).bind(redisClient);
 const existAsync = promisify(redisClient.exists).bind(redisClient);
 
 const save = async(obj)=>{    
@@ -23,7 +23,7 @@ const del = async() =>{
 }
 
 const findById = async(id) =>{
-    let resulset = await getAllAsync(`campaign${id}`)
+    let resulset = await getAsync(`campaign${id}`)
 
     return resulset;
 }

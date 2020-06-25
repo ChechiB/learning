@@ -3,6 +3,7 @@ let router = express.Router();
 let {ErrorHandler} = require('../helpers/errorHandler')
 let msgResponse = require('../helpers/reponseHandler')
 let campaignService = require('../service/campaign_service');
+let gameService = require('../service/game_service');
 
 /* Init game */
 router.post('/new', async function(req, res, next) {
@@ -34,5 +35,19 @@ router.post('/:hash/join', async function(req, res, next){
     }
 });
 
+/*Save move */
+router.post('/:hash/position/:cell', async function(req, res, next){
+    try {
+        let result = await gameService.saveMove(req.params.hash,req.params.cell,req.body)
+        if(!result) {
+			res.send( msgResponse.buildResponse(400, 'Error', result))
+		}else{
+			res.send( msgResponse.buildResponse(200, 'Ok', result))
+        }
+        next()
+    } catch (error) {
+        next(error)
+    }
+});
 
 module.exports = router;

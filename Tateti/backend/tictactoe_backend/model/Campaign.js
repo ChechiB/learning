@@ -1,10 +1,10 @@
 let campaign = {
-    p1Score: null,
-    p2Score: null,
-    ties: null,
-    nextPlayer: null,
-    lastGameId: null,
-    idCampaign: null
+    p1Score: "",
+    p2Score: "",
+    ties: "",
+    nextPlayer: "",
+    lastGameId: "",
+    idCampaign: ""
 }
 
 let initCampaign= function(idCampaign,lastGameId){

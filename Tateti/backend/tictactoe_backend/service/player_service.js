@@ -15,11 +15,12 @@ const createPlayer = async(obj)=>{
     return {}
 }
 
-const findById = async(name)=>{
-    
+const getPlayerById = async(idPlayer)=>{
+    return await repoPlayer.findById(idPlayer)
 }
 
 
 module.exports = {
-    createPlayer
+    createPlayer,
+    getPlayerById
 }

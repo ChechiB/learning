@@ -16,11 +16,26 @@ const create = async(obj)=>{
 
 const findAllByGame = async(idGame)=>{
     let resulSet = await keysAsync(`player*game${idGame}`)
-    console.log('resulSet',resulSet)
     if(!resulSet.length) return [];
-    return resulSet;
+
+    let playerGameList = [];
+
+    for (let index = 0; index < resulSet.length; index++) {
+        const element = resulSet[index];
+
+        playerGameList.push(
+            await getAsync(`${element}`)   
+        );    
+    }
+    return playerGameList;
 }
+
+const findKeyByGame = async(idGame)=>{
+    return await keysAsync(`player*game${idGame}`)
+}
+
 module.exports = {
     create,
-    findAllByGame
+    findAllByGame,
+    findKeyByGame
 }

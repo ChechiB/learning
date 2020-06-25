@@ -1,7 +1,7 @@
 playerGame = {
-    idPlayer : null,
-    idGame: null,
-    symbol: null
+    idPlayer : "",
+    idGame: "",
+    symbol: ""
 }
 
 let setPlayerGame = function(idPlayer,idGame, symbol){

@@ -11,8 +11,7 @@ const {hash} = require('../helpers/generalHelper')
 
 
 const create = async(obj)=>{
-    console.log("OBJ GAME",obj)
-    return await redisClient.hset(`game${obj.idGame}`, 'state', obj.state, 
+    return await redisClient.hset(`game${obj.idGame}`, 'state', obj.state,'nextPlayer',obj.nextPlayer,
         'cell0', obj.cell0,
         'cell1', obj.cell1,
         'cell2', obj.cell2,
@@ -32,10 +31,16 @@ const del = async() =>{
 
 }
 
-const get = async() =>{
+const findById = async(idGame) =>{
+    return await getAsync(`game${idGame}`)
+}
 
+const findKey = async(idGame)=>{
+    return await keysAsync(`game${idGame}`)
 }
 
 module.exports = {
-    create
+    create,
+    findById,
+    findKey
 }
