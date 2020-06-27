@@ -37,7 +37,6 @@ const getKeys = async(idGame)=>{
 }
 
 const getPlayerGame = async(idPlayer,idGame)=>{
-    console.log("idPlayer",idPlayer,"idGame",idGame)
     let resultSet = await player_game_repository.findById(idPlayer,idGame)
     return resultSet
 }

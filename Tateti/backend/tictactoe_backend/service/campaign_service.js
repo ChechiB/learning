@@ -43,18 +43,15 @@ const joinCampaign = async(hash,obj) =>{
         let playerGameTwoId = await player_game_service.savePlayerGame(playerTwo, lastGameId)
         //Update playerGame 
         await player_game_service.savePlayerGame(players[0],lastGameId)
-        await game_service.setNextPlayer(players,lastGameId)
+        let game = await game_service.setNextPlayer(players,lastGameId)
         return {idCampaign: resultCampaign.idCampaign,
             hash: hash}
     }
 }
 
 const getCampaign = async(hash)=>{
-    //Search campaign
-    console.log("getCampaign","hash",hash);
-    
+    //Search campaign 
     let idCampaign = await base_service.getByHash(hash)
-    console.log("idCampaign",idCampaign)
     //Search the game associated with the campaign
     let resultCampaign = await campaign_repository.findById(idCampaign)
     
@@ -64,9 +61,9 @@ const getCampaign = async(hash)=>{
 const getCampaignStatus = async(hash)=>{
     let resultCampaign = await getCampaign(hash);
     let lastGameId = resultCampaign.lastGameId    
-    let resultGame = await game_service.getGameStatus(lastGameId)    
+    let game = await game_service.getGameStatus(lastGameId)    
     
-    return {campaign: resultCampaign, game: resultGame}
+    return {campaign: resultCampaign, game}
 }
 
 let calculateScore = function(){

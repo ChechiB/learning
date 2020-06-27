@@ -1,5 +1,5 @@
 let game = {
-    state: true,
+    status: true,
     nextPlayer: "",
     cell0: "",
     cell1: "",
@@ -13,7 +13,7 @@ let game = {
 }
 
 let setGame = function(obj){
-    game.state = obj.state
+    game.status = obj.status
     game.cell0 = obj.cell0
     game.cell1 = obj.cell1
     game.cell2 = obj.cell2

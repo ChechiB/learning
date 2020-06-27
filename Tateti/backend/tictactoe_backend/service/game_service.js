@@ -11,7 +11,7 @@ const initGame = async(obj,idCampaign) => {
     gameDict.idCampaign = idCampaign
     lastGameId = await base_service.getLastId('gameId')
     gameDict.idGame = parseInt(lastGameId)+1
-    
+    console.log("gameDict",gameDict)
     await game_repository.create(gameDict)
     let playerDict = await player_service.createPlayer(obj)
     playerDict.symbol = ""
@@ -24,23 +24,26 @@ const initGame = async(obj,idCampaign) => {
 }
 
 const saveMove = async(hash,cellPosition,obj)=>{ 
-    let gameUpdate={}
     let newCampSer = require('./campaign_service');
     let resultCampaign = await newCampSer.getCampaign(hash);
-    console.log("resultCampaign",resultCampaign)
     //Get game
     let idGame = resultCampaign.lastGameId 
-    let gameDict = await game_repository.findById(idGame)
-    gameDict.idGame = idGame
-    console.log("gameDict",gameDict);
-    if (gameDict.status === false){
-        return {"msg": "Game Over"}
+    let game = await game_repository.findById(idGame)
+    game.idGame = idGame
+    console.log(typeof(game.status));
+    
+    if (game.status=="false"){
+        return {msg: "Game Over"}
     }
+    let playerGameKeys = await player_game_service.getKeys(idGame)
 
+    if(playerGameKeys.length <2){
+        return {msg: "Waiting for another player"}
+    }
     let playerGame = await player_game_service.getPlayerGame(obj.idPlayer,idGame)
     
-    if((obj.idPlayer == gameDict.nextPlayer)&&(Object.keys(playerGame).length !== 0)) {
-        let playerGameKeys = await player_game_service.getKeys(idGame)
+    if((obj.idPlayer == game.nextPlayer)&&(Object.keys(playerGame).length !== 0)) {
+        
         //Get id players
         let patt1 = /[0-9]+/g;
         let playerOne = {}
@@ -52,29 +55,27 @@ const saveMove = async(hash,cellPosition,obj)=>{
 
         players = [playerOne, playerTwo]
 
-        if(gameDict[`cell${cellPosition}`] ===""){
-            gameDict[`cell${cellPosition}`] = playerGame.symbol
+        if(game[`cell${cellPosition}`] ===""){
+            game[`cell${cellPosition}`] = playerGame.symbol
             
-            if(!isWinner(getCells(gameDict))){
-                gameDict = obtainWhoIsPlaying(players, gameDict)
-                console.log("gameUpdate",gameUpdate)
+            if(!isWinner(getCells(game))){
+                game = obtainWhoIsPlaying(players, game)
             }else{
-                console.log("Winner")
-                gameDict.status = false
+                game.status = false
             }
 
-            let bla = await game_repository.create(gameDict)
+            let bla = await game_repository.create(game)
 
             //Si hay ganador, sumar score, setear estado del juego a false
             //
         }else{
-            console.log("Celda ocupada")
+            return {msg: "occupied cell"}
         }
     }else{
-        console.log("Jugador incorrecto");
-        
+        return {msg: "Wrong player"}        
     }
-    return 0;
+
+    return {game}
 }
 
 const getCells = (game)=>{
@@ -96,16 +97,35 @@ const getGame = async(idGame)=>{
 const getGameStatus = async(idGame)=>{
     let game = await game_repository.findById(idGame)
     let playerGameKeys = await player_game_service.getKeys(idGame)
+    console.log("playerGameKeys",playerGameKeys)
     let playerGameList = await player_game_service.getPlayerGameList(idGame)    
     //Get players
     let patt1 = /[0-9]+/g;
-    let playerOne = await player_service.getPlayerById(playerGameKeys[0].toString().match(patt1)[0])
-    let playerTwo = await player_service.getPlayerById(playerGameKeys[1].toString().match(patt1)[0])
+    let players ={}
 
-    playerOne.symbol = playerGameList[0].symbol
-    playerTwo.symbol = playerGameList[1].symbol
-
-    return {players:[playerOne, playerTwo], game}
+    for (let index = 0; index < playerGameKeys.length; index++) {
+        const element = playerGameKeys[index];
+     
+        players[`player${index}`] =  await player_service.getPlayerById(element.toString().match(patt1)[0])
+    
+    }
+   for (let index = 0; index < players.length; index++) {
+       const element = players[index];
+       element.symbol = playerGameList[index].symbol
+       
+   }    
+    return {players, 
+            status: game.status,
+            nextPlayer: game.nextPlayer,
+            cell0: game.cell0,
+            cell1: game.cell1,
+            cell2: game.cell2,
+            cell3: game.cell3,
+            cell4: game.cell4,
+            cell5: game.cell5,
+            cell6: game.cell6,
+            cell7: game.cell7,
+            cell8: game.cell8}
 }
 
 const isWinner = (cells) =>{
@@ -116,10 +136,10 @@ const setNextPlayer = async function(obj, idGame){
     let game = await game_repository.findById(idGame)
     game.idGame = idGame
     await game_repository.create(obtainWhoIsPlaying(obj,game))
+
 }
 
 const obtainWhoIsPlaying = function(obj,game){
-    console.log("Who is playing","obj",obj,"game",game)
     if (game.nextPlayer === ""){
         if(Math.random() <0.5){
             game.nextPlayer = obj[0].idPlayer
@@ -137,7 +157,6 @@ const obtainWhoIsPlaying = function(obj,game){
 
 
 const checkWinner = (cells) =>{
-    console.log("Cells",cells)
     let coincidences= false;
     let emptyMatrix = false;
 
@@ -154,10 +173,8 @@ const checkWinner = (cells) =>{
     }
 
     if(coincidences === true){
-        console.log("Winner")
         return true;
     }else if(coincidences === false && emptyMatrix===false){
-        console.log("match")
         return false;
     }
     

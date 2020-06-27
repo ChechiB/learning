@@ -69,7 +69,7 @@ curl --location --request GET 'localhost:3000/campaign/236c0a957badee4b9fc3f2c0c
 
             },
             status: boolean,
-            netPlayer: string,
+            nextPlayer: string,
             cell1: string,
             ...
             ...

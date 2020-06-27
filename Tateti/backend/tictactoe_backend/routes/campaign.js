@@ -25,6 +25,7 @@ router.post('/:hash/join', async function(req, res, next){
     try {
         let result = await campaignServiceRoute.joinCampaign(req.params.hash,req.body)
         if(!result) {
+            res.status = 400
 			res.send( msgResponse.buildResponse(400, 'Error', result))
 		}else{
 			res.send( msgResponse.buildResponse(200, 'Ok', result))

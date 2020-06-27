@@ -24,7 +24,6 @@ const del = async() =>{
 
 const findById = async(id) =>{
     let resulset = await getAsync(`campaign${id}`)
-
     return resulset;
 }
 
