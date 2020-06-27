@@ -34,8 +34,13 @@ const findKeyByGame = async(idGame)=>{
     return await keysAsync(`player*game${idGame}`)
 }
 
+const findById = async(idPlayer,idGame)=>{
+    return await getAsync(`player${idPlayer}game${idGame}`)
+}
+
 module.exports = {
     create,
     findAllByGame,
-    findKeyByGame
+    findKeyByGame,
+    findById
 }

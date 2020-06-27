@@ -1,14 +1,13 @@
-let {ErrorHandler} = require('../helpers/errorHandler')
-const game = require('../model/Game');
+//let {ErrorHandler} = require('../helpers/errorHandler')
+const gameModel = require('../model/Game');
 const game_repository = require('../repository/game_repository');
-const base_service = require('../service/base_service');
-const player_service = require('../service/player_service');
-const player_game_service = require('../service/player_game_service');
-const campaign_service = require('../service/campaign_service');
-
+const base_service = require('./base_service');
+const player_service = require('./player_service');
+const player_game_service = require('./player_game_service');
+const new_get_service = require('./get_Campaign_service')
 
 const initGame = async(obj,idCampaign) => {
-    let gameDict = game.getGame()
+    let gameDict = gameModel.getGame()
     gameDict.idCampaign = idCampaign
     lastGameId = await base_service.getLastId('gameId')
     gameDict.idGame = parseInt(lastGameId)+1
@@ -24,37 +23,103 @@ const initGame = async(obj,idCampaign) => {
     return {idGame: gameDict.idGame}
 }
 
-const saveMove = async (hash,cellValue,obj)=>{
-    console.log("hash",hash,"cellValue",cellValue,"obj",obj);
-
-   let resultCampaign = campaign_service.getCampaign
-   
+const saveMove = async(hash,cellPosition,obj)=>{ 
+    let gameUpdate={}
+    let newCampSer = require('./campaign_service');
+    let resultCampaign = await newCampSer.getCampaign(hash);
+    console.log("resultCampaign",resultCampaign)
     //Get game
-    let lastGameId = resultCampaign.lastGameId
-    let game = await game_repository.findById(lastGameId)
-    let playerGame = await player_game_service.getPlayerGame(obj.idPlayer,lastGameId)
-
-    if(playerGame){
-        let cell = "cell" + cellValue 
-        if(game.cell !==""){
-            game.cell == playerGame.symbol
-            isWinner(game.getCells())
-            //Si hay ganador, sumar score
-        }
+    let idGame = resultCampaign.lastGameId 
+    let gameDict = await game_repository.findById(idGame)
+    gameDict.idGame = idGame
+    console.log("gameDict",gameDict);
+    if (gameDict.status === false){
+        return {"msg": "Game Over"}
     }
 
+    let playerGame = await player_game_service.getPlayerGame(obj.idPlayer,idGame)
+    
+    if((obj.idPlayer == gameDict.nextPlayer)&&(Object.keys(playerGame).length !== 0)) {
+        let playerGameKeys = await player_game_service.getKeys(idGame)
+        //Get id players
+        let patt1 = /[0-9]+/g;
+        let playerOne = {}
+        let playerTwo = {}
+        let players = []
+
+        playerOne.idPlayer = playerGameKeys[0].toString().match(patt1)[0]
+        playerTwo.idPlayer = playerGameKeys[1].toString().match(patt1)[0]
+
+        players = [playerOne, playerTwo]
+
+        if(gameDict[`cell${cellPosition}`] ===""){
+            gameDict[`cell${cellPosition}`] = playerGame.symbol
+            
+            if(!isWinner(getCells(gameDict))){
+                gameDict = obtainWhoIsPlaying(players, gameDict)
+                console.log("gameUpdate",gameUpdate)
+            }else{
+                console.log("Winner")
+                gameDict.status = false
+            }
+
+            let bla = await game_repository.create(gameDict)
+
+            //Si hay ganador, sumar score, setear estado del juego a false
+            //
+        }else{
+            console.log("Celda ocupada")
+        }
+    }else{
+        console.log("Jugador incorrecto");
+        
+    }
+    return 0;
 }
 
-function isWinner(cells){
+const getCells = (game)=>{
+    return [[game.cell0,
+        game.cell1,
+        game.cell2],
+        [game.cell3,
+        game.cell4,
+        game.cell5],
+        [game.cell6,
+        game.cell7,
+        game.cell8]]
+}
+const getGame = async(idGame)=>{
+   let resultGame = await game_repository.findById(idGame)
+   return resultGame
+}
+
+const getGameStatus = async(idGame)=>{
+    let game = await game_repository.findById(idGame)
+    let playerGameKeys = await player_game_service.getKeys(idGame)
+    let playerGameList = await player_game_service.getPlayerGameList(idGame)    
+    //Get players
+    let patt1 = /[0-9]+/g;
+    let playerOne = await player_service.getPlayerById(playerGameKeys[0].toString().match(patt1)[0])
+    let playerTwo = await player_service.getPlayerById(playerGameKeys[1].toString().match(patt1)[0])
+
+    playerOne.symbol = playerGameList[0].symbol
+    playerTwo.symbol = playerGameList[1].symbol
+
+    return {players:[playerOne, playerTwo], game}
+}
+
+const isWinner = (cells) =>{
     return checkWinner(cells);
 } 
 
 const setNextPlayer = async function(obj, idGame){
     let game = await game_repository.findById(idGame)
+    game.idGame = idGame
     await game_repository.create(obtainWhoIsPlaying(obj,game))
 }
 
 const obtainWhoIsPlaying = function(obj,game){
+    console.log("Who is playing","obj",obj,"game",game)
     if (game.nextPlayer === ""){
         if(Math.random() <0.5){
             game.nextPlayer = obj[0].idPlayer
@@ -71,7 +136,7 @@ const obtainWhoIsPlaying = function(obj,game){
 }
 
 
-function checkWinner(cells){
+const checkWinner = (cells) =>{
     console.log("Cells",cells)
     let coincidences= false;
     let emptyMatrix = false;
@@ -98,7 +163,7 @@ function checkWinner(cells){
     
 }
 
-function checkCoincidence(cells){
+const checkCoincidence = (cells) =>{
     for (let i = 0; i < cells.length; i++) {
         horizontalLine = []             
         horizontalLine = cells[i];  
@@ -108,23 +173,21 @@ function checkCoincidence(cells){
     }
 
 }
-function checkHorizontalLine(horizontalLine){
-   
-   if(horizontalLine[0] == ""){
-       return false;
-   } 
 
-   for (let i = 1; i < horizontalLine.length; i++) {
-       if(horizontalLine[0]!== horizontalLine[i]){
-           return false;
-       }
-       
-   }
-      
+const checkHorizontalLine = (horizontalLine)=>{   
+    if(horizontalLine[0] == ""){
+        return false;
+    } 
+
+    for (let i = 1; i < horizontalLine.length; i++) {
+        if(horizontalLine[0]!== horizontalLine[i]){
+            return false;
+        }       
+    }      
     return true;
 }
 
-function containsEmptyCell(cells){
+const containsEmptyCell = (cells) =>{
     for (let i = 0; i < cells.length; i++) {
         for (let j = 0; j < cells[i].length; j++) {
             if(cells[i][j] ===""){
@@ -135,7 +198,7 @@ function containsEmptyCell(cells){
     return false; 
 }
 
-function determineVerticalLines(cells){           
+const determineVerticalLines = (cells)=>{
     let verticalLines = []
     for (let i = 0; i < cells.length; i++) {
         determineVerticalLine = []
@@ -147,7 +210,7 @@ function determineVerticalLines(cells){
     return verticalLines;
 }
 
-function determineCrooslines(cells){
+const determineCrooslines = (cells) =>{
     let principalD = []
     let secondaryD = []
 
@@ -169,5 +232,7 @@ function determineCrooslines(cells){
 module.exports = {
     initGame,
     saveMove,
-    setNextPlayer
+    setNextPlayer,
+    getGame,
+    getGameStatus,
 }

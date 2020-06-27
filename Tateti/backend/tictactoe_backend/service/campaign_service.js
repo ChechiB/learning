@@ -1,39 +1,38 @@
 //Import campaign repository
 const general_helper = require('../helpers/generalHelper')
-const player_service = require('../service/player_service')
-const player_game_service = require('../service/player_game_service')
-const campaign = require('../model/Campaign')
-const base_service = require('../service/base_service')
+const player_service = require('./player_service')
+const player_game_service = require('./player_game_service')
+const campaignModel = require('../model/Campaign')
+const base_service = require('./base_service')
 const campaign_repository = require('../repository/campaign_repository')
-const game_service = require('../service/game_service')
+const game_service = require('./game_service')
 
 const initCampaign = async(obj)=>{
     //Generate Hash   
     let hash = general_helper.generateHash(obj.playerName)  
     //Create campaign
-    lastcampaignId = await base_service.getLastId('campaignId')
-    actualCampaignId = parseInt(lastcampaignId)+1
+    campaignId = await base_service.getLastId('campaignId')
+    actualCampaignId = parseInt(campaignId)+1
     let lstId = await game_service.initGame(obj, actualCampaignId)
-    campaign.initCampaign(actualCampaignId, lstId.idGame)
+    campaignModel.initCampaign(actualCampaignId, lstId.idGame)
 
     //Save 
-    await campaign_repository.save(campaign.getCampaign())    
+    await campaign_repository.save(campaignModel.getCampaign())    
     await base_service.saveHash(hash, actualCampaignId)    
     //Update ids counters
     await base_service.setLastId('campaignId')
 
-    return {lastcampaignId,
+    return {campaignId,
         hash: hash}
 }
 
-//Validar si el jugador pertenece a la campaña a ala que intenta ingresar
 const joinCampaign = async(hash,obj) =>{
     let resultCampaign = await getCampaign(hash)
     let lastGameId = resultCampaign.lastGameId    
     let playerOne = {}
     //Check amount of players
     let playerGameList = await player_game_service.getKeys(lastGameId)
-        if(playerGameList.length >2){
+    if(playerGameList.length >2){
         console.log("No se permiten mas de dos jugadores")
     }else{
         //Set symbol
@@ -52,11 +51,22 @@ const joinCampaign = async(hash,obj) =>{
 
 const getCampaign = async(hash)=>{
     //Search campaign
+    console.log("getCampaign","hash",hash);
+    
     let idCampaign = await base_service.getByHash(hash)
+    console.log("idCampaign",idCampaign)
     //Search the game associated with the campaign
     let resultCampaign = await campaign_repository.findById(idCampaign)
     
     return resultCampaign
+}
+
+const getCampaignStatus = async(hash)=>{
+    let resultCampaign = await getCampaign(hash);
+    let lastGameId = resultCampaign.lastGameId    
+    let resultGame = await game_service.getGameStatus(lastGameId)    
+    
+    return {campaign: resultCampaign, game: resultGame}
 }
 
 let calculateScore = function(){
@@ -67,6 +77,7 @@ let calculateScore = function(){
 module.exports = {
     initCampaign,
     joinCampaign,
-    getCampaign
+    getCampaign,
+    getCampaignStatus
 }
 

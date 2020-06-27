@@ -11,6 +11,7 @@ const {hash} = require('../helpers/generalHelper')
 
 
 const create = async(obj)=>{
+    console.log("create",obj)
     return await redisClient.hset(`game${obj.idGame}`, 'state', obj.state,'nextPlayer',obj.nextPlayer,
         'cell0', obj.cell0,
         'cell1', obj.cell1,
@@ -21,14 +22,6 @@ const create = async(obj)=>{
         'cell6', obj.cell6,
         'cell7', obj.cell7,
         'cell8', obj.cell8)   
-}
-
-const update = async() =>{
-
-}
-
-const del = async() =>{
-
 }
 
 const findById = async(idGame) =>{

@@ -41,8 +41,13 @@ let getCells = function(){
         game.cell8]]
 }
 
+let getCell = function(obj,cellPosition){
+    return obj.cellPosition
+}
+
 module.exports = {
     setGame,
     getGame,
-    getCells
+    getCells,
+    getCell
 }

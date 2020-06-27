@@ -1,13 +1,12 @@
-let repoPlayerGame = require('../repository/player_game_repository');
-const playerGame = require('../model/PlayerGame');
+const playerGameModel = require('../model/PlayerGame');
 const base_service = require('../service/base_service');
 const player_game_repository = require('../repository/player_game_repository');
 
 const savePlayerGame = async(player, idGame)=>{
     //Generate symbol
-    playerGame.setPlayerGame(player.idPlayer, idGame, player.symbol)
+    playerGameModel.setPlayerGame(player.idPlayer, idGame, player.symbol)
     //Save PlayerGame
-    let resultSet = await repoPlayerGame.create(playerGame.getPlayerGame())
+    let resultSet = await player_game_repository.create(playerGameModel.getPlayerGame())
 
     if(resultSet!==0){
         return {idPlayerGame: await base_service.setLastId(idGame)}
@@ -37,9 +36,16 @@ const getKeys = async(idGame)=>{
     return await player_game_repository.findKeyByGame(idGame)
 }
 
+const getPlayerGame = async(idPlayer,idGame)=>{
+    console.log("idPlayer",idPlayer,"idGame",idGame)
+    let resultSet = await player_game_repository.findById(idPlayer,idGame)
+    return resultSet
+}
+
 module.exports = {
     savePlayerGame,
     getPlayerGameList,
     generate_symbol,
-    getKeys
+    getKeys,
+    getPlayerGame
 }

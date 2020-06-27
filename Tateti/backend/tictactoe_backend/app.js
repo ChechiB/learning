@@ -6,7 +6,7 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var campaignRoute = require('./routes/campaign')
 
-var {handleError} = require('./helpers/errorHandler')
+var handleError = require('./helpers/errorHandler').handleError
 
 var app = express();
 
