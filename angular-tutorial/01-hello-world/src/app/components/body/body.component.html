@@ -1,0 +1,22 @@
+<div class="row">
+    <div class="col">
+        <h1>*ngIf</h1>
+        <hr>
+        <div *ngIf="showCard" class="card text-white bg-primary mb-3" style="width: 100%;">
+            <div class="card-body">
+                <h5 class="card-title">{{phrase.author}}</h5>
+                <p class="card-text">{{phrase.msg}}</p>
+            </div>
+        </div>
+        <button (click)="showCard = !showCard" class="btn btn-outline-primary btn-block">
+            Mostrar/Ocultar
+        </button>
+    </div>
+    <div class="col">
+        <h1>*ngIf</h1>
+        <hr>
+        <ul class="list-group">
+            <li *ngFor="let character of characters; let i = index" class="list-group-item">{{i+1}}-{{character}}</li>
+        </ul>
+    </div>
+</div>

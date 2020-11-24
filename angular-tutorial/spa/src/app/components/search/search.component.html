@@ -1,0 +1,13 @@
+<h1>Search: <small> {{ text }} </small></h1>
+
+<div class="row" *ngIf="heroes.length==0">
+    <div class="col-md-12">
+        <div class="alert alert-primary" role="alert">
+            <strong>No existen resultados con el término {{ text }}</strong>
+        </div>
+    </div>
+</div>
+
+<div class="card-columns">
+    <app-hero-card (heroSelected)="showHeroDetail( $event )" [hero]="hero" [index]="hero.idx" *ngFor="let hero of heroes, let i = index"></app-hero-card>
+</div>
